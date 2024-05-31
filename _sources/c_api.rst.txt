@@ -1,0 +1,12 @@
+.. _c_api:
+
+C API
+=======
+
+.. doxygenfunction:: AIMDCreateHandle
+
+.. doxygenfunction:: AIMDInit
+
+.. doxygenfunction:: AIMDRun
+
+.. doxygenfunction:: AIMDDestroy

@@ -1,0 +1,27 @@
+新增模型
+========
+
+命名规则：
+
+
+统一命名规则
+模型类别_模型架构_自定义字符串_v1.cpp
+detection_yolo_mix_v1
+1. v1,v2,v3 只有当需要更改部署代码时才更改。即优化算法、功能不变时更改版本号
+2. 前后处理不变时，不需要新增文件。只更换模型文件/更改 mean std 时不需要更改。
+即更改部署代码需要重新创建一个文件夹写代码，其他情况下不需要
+
+onnx 名称
+命名前缀_自定义字符串_20240102.onnx
+bin 名称
+命名前缀_自定义字符串_20240102.bin
+
+
+7 个必须文件
+tradition_gaussian_filter_v1.cpp
+tradition_gaussian_filter_v1.h
+tradition_gaussian_filter_v1_export.cpp
+tradition_gaussian_filter_v1_export.h
+tradition_gaussian_filter_v1_types.h
+tradition_gaussian_filter_v1_test.cpp
+tradition_gaussian_filter_v1.rst

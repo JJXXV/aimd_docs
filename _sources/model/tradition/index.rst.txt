@@ -1,0 +1,7 @@
+传统算法模型
+==========================
+.. toctree::
+	:maxdepth: 1
+	:glob:
+
+	tradition_gaussian_filter_v1

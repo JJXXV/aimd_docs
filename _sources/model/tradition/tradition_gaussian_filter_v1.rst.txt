@@ -1,0 +1,212 @@
+tradition_gaussian_filter_v1
+=============================
+
+模型简介
+--------
+- 作用：将传统高斯滤波转换成模型的形式，并使用 NPU 进行计算，提高传统高斯滤波的计算速度
+- 模型作者：王京
+- 适用场景：对任意图片进行高斯滤波，基本都可以使用这种方式优化
+- 实际效果：
+
+.. figure:: ../../../images/tradition_gaussian_filter_v1_perform.png
+    :name: gaussian_filter
+    :align: center
+    :width: 80%
+
+- 补充说明：
+    - 理论上可以对任意格式(RGB/BGR/GRAY等)、任意尺寸图片进行高斯滤波的优化，但是需要重新生成模型文件
+    - 传统高斯滤波和模型推理的结果并不是完全一致的(大概平均像素误差在 0.5 以下)，存在两方面误差
+        - fp32 计算和 int8 计算的误差
+        - 最外层像素 padding 方式不同，传统高斯滤波使用最外层像素值进行 padding，模型使用 0 进行 padding，这个差异只会影响最外边一圈的计算结果
+
+模型更新历史
+------------
+.. note::
+    onnx input shape 是模型推理时，实际输入的尺寸，并不是部署时一定要提供这种尺寸。
+    一般情况下，如果外部提供的尺寸与 onnx input shape 不一致，AIMD 会在内部进行 resize
+    然后在输入到模型中进行推理。
+
+.. list-table:: 模型更新历史
+    :width: 100%
+    :header-rows: 1
+
+    * - onnx model
+      - onnx input shape
+      - NPU model
+      - NPU platform
+      - 模型说明
+    * - tradition_gaussian_filter_v1_20240523.onnx
+      - 1x1x512x640
+      - tradition_gaussian_filter_v1_20240523.npubin
+      - AR9341
+      - 对应传统高斯滤波：kernel size 为 3，sigma 为 0.8
+    * -
+      -
+      - RESERVE
+      - RESERVE
+      - RESERVE
+    * -
+      -
+      - RESERVE
+      - RESERVE
+      - RESERVE
+
+模型部署
+------------------
+.. note::
+    - 模型速度：包含模型前后处理，加上 NPU 推理的全部速度。AIMD 测试时，仅仅运行部署代码，并没有其他进程、线程的影响，也就是说测试环境较为理想
+    - 模型大小：仅仅指模型文件大小，并不是指模型参数个数
+    - 模型量化损失：计算 FP32 模型和量化模型输出 tensor 的 MAE，这种方式可能不是最准确的，但是是最直观的，公式如下：
+        .. math:: \text{量化损失(MAE)} = \frac{1}{n}\sum_{i=1}^{n} |y_i - \hat{y_i}|
+
+    - 模型部署代码：为了防止参数细节引起的 bug，请参考测试代码进行部署，测试代码都是通过单元测试的代码
+
+.. list-table:: 模型部署
+    :width: 100%
+    :header-rows: 1
+
+    * - NPU model
+      - 模型精度
+      - 模型速度
+      - 模型大小
+      - 模型量化损失
+    * - tradition_gaussian_filter_v1_20240523.npubin
+      - int8
+      - 15ms
+      - 38KB
+      - 0.29
+    * - RESERVE
+      - RESERVE
+      - RESERVE
+      - RESERVE
+      - RESERVE
+
+TEST CODE
+-------------
+
+.. code-block:: cpp
+	:linenos:
+
+	// Copyright (c) 2024 烟台艾睿光电科技有限公司 All rights reserved.
+	#include "aimd_c_types.h"
+	#include "aimd_header.h"
+	#include "catch2/catch.hpp"
+	#include "opencv2/opencv.hpp"
+	#include "tradition_gaussian_filter_v1_types.h"
+	
+	#include <cmath>
+	#include <cstring>
+	#include <iostream>
+	
+	// 高斯滤波 CPU 实现，用于与 NPU 结果进行比对
+	int separateGaussianFilter(
+	    float* src, float* dst, int width, int height, int wsize, float sigma) {
+	    //获取一维高斯滤波模板
+	    std::vector<float> window;
+	    float* dstT = (float*)malloc(width * height * sizeof(float));
+	    if (dstT == NULL)
+	        return -1;
+	    window.resize(wsize);
+	    int center = (wsize - 1) / 2;
+	    float sum = 0.0;
+	    for (int i = 0; i < wsize; ++i) {
+	        float g = exp(-(pow(i - center, 2)) / (2 * sigma * sigma));
+	        window[i] = g;
+	        sum += g;
+	    }
+	    for (int i = 0; i < wsize; ++i) {
+	        window[i] = window[i] / sum;
+	    }
+	    int boder = (wsize - 1) / 2;
+	    //高斯滤波--水平方向
+	    for (int i = 0; i < height; ++i) {
+	        for (int j = 0; j < width; ++j) {
+	            float sum = 0;
+	            for (int r = -boder; r <= boder; ++r) {
+	                sum = sum +
+	                      src[i * width + std::min(std::max(j + r, 0), width - 1)] *
+	                          window[r + boder];
+	            }
+	            sum = std::min(std::max(sum, float(0)), float(255));
+	            dstT[i * width + j] = sum;
+	        }
+	    }
+	    //高斯滤波--垂直方向
+	    for (int i = 0; i < height; ++i) {
+	        for (int j = 0; j < width; ++j) {
+	            float sum;
+	            sum = 0;
+	            for (int r = -boder; r <= boder; ++r) {
+	                sum =
+	                    sum +
+	                    dstT[std::min(std::max(i + r, 0), height - 1) * width + j] *
+	                        window[r + boder];
+	            }
+	            sum = std::min(std::max(sum, float(0)), float(255));
+	            dst[i * width + j] = sum;
+	        }
+	    }
+	    free(dstT);
+	    return 0;
+	}
+	
+	#ifdef AIMD_PLATFORM_AR9341
+	#    ifdef AIMD_PLATFORM_AR9341_SDK_16_02
+	TEST_CASE("tradition_gaussian_filter_v1", "AR9341-SDK-16.02") {
+	    // 图片/模型 使用相对路径，从 src 开始
+	    const char* img_path = "./src/model/tradition/tradition_gaussian_filter_v1/"
+	                           "data/tradition_gaussian_filter.jpg";
+	    const char* model_path =
+	        "./src/model/tradition/tradition_gaussian_filter_v1/"
+	        "tradition_gaussian_filter_v1_20240523.npubin";
+	
+	    // 设置 EngineParam & create Handle
+	    EngineParam gaussianEngineParam;
+	    strcpy(gaussianEngineParam.modelType, "tradition_gaussian_filter_v1");
+	    strcpy(gaussianEngineParam.modelPath, model_path);
+	    void* handle = AIMDCreateHandle(&gaussianEngineParam);
+	
+	    // 设置 ModelParam & Init
+	    GaussianParams modelParam;
+	    AIMDInit(handle, &modelParam);
+	
+	    // 读取图片
+	    cv::Mat image = cv::imread(img_path, cv::IMREAD_GRAYSCALE);
+	    int width = image.cols;
+	    int height = image.rows;
+	
+	    // 运行传统高斯滤波(用于比对)，部署时不需要考虑下面的代码
+	    float* cpuInput = new float[height * width];
+	    float* cpuOutput = new float[height * width];
+	    unsigned char* imageData = image.data;
+	    for (int h = 0; h < height; ++h) {
+	        for (int w = 0; w < width; ++w) {
+	            cpuInput[h * width + w] =
+	                static_cast<float>(imageData[h * width + w]);
+	        }
+	    }
+	    separateGaussianFilter(cpuInput, cpuOutput, width, height, 3, 0.8);
+	
+	    // 运行 NPU 推理
+	    float* npuOutput;
+	    AIMDRun(handle, &(image.data), &npuOutput);
+	
+	    // 比对结果
+	    float sumError = 0;
+	    float meanError = 0;
+	    for (int i = 0; i < height * width; ++i) {
+	        sumError += std::abs(npuOutput[i] - cpuOutput[i]);
+	    }
+	    meanError = sumError / (height * width);
+	
+	    // 释放内存
+	    AIMDDestroy(handle);
+	    delete[] cpuInput;
+	    delete[] cpuOutput;
+	
+	    std::cout << "sum:   " << sumError << std::endl;
+	    std::cout << "mean:  " << meanError << std::endl;
+	    REQUIRE(meanError < 0.4);
+	}
+	#    endif // AIMD_PLATFORM_AR9341_SDK_16_02
+	#endif     // AIMD_PLATFORM_AR9341

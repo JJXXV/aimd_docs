@@ -1,0 +1,14 @@
+模型文档
+========
+
+.. toctree::
+    :maxdepth: 2
+    :glob:
+
+    classification/index
+    detection/index
+    reid/index
+    seg/index
+    sr/index
+    track/index
+    tradition/index

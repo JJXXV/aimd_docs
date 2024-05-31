@@ -1,0 +1,14 @@
+AIMD User Guide
+================
+.. toctree::
+    :maxdepth: 4
+    :numbered: 3
+
+    overview
+    installation
+    quick_start
+    model_index
+    model/index
+    c_api
+    develop/index
+    legal
