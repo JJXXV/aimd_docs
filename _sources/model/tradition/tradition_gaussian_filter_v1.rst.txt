@@ -8,7 +8,7 @@ tradition_gaussian_filter_v1
 - 适用场景：对任意图片进行高斯滤波，基本都可以使用这种方式优化
 - 实际效果：
 
-.. figure:: ../../../images/tradition_gaussian_filter_v1_perform.png
+.. figure:: ../../../images/tradition_gaussian_filter_perform.png
     :name: gaussian_filter
     :align: center
     :width: 80%
