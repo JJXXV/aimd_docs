@@ -11,5 +11,5 @@
 	  - 模型名称
 	  - 模型功能
 	* - tradition
-	  - tradition_gaussian_filter_v1
+	  - :ref:`tradition_gaussian_filter_v1`
 	  - 将传统高斯滤波转换成模型的形式，并使用 NPU 进行计算，提高传统高斯滤波的计算速度

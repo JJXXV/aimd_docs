@@ -66,7 +66,7 @@
   
   
     <div class="version">
-      Version: 0.0.3.dev0+g78b1812.d20240531
+      Version: 0.0.3.dev0+g78b1812.d20240605
     </div>
   
 
@@ -134,9 +134,9 @@
 </li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">5.7. 传统算法模型</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">5.7.1. tradition_gaussian_filter_v1</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id1">模型简介</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id2">模型更新历史</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id3">模型部署</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">模型简介</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">模型更新历史</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">模型部署</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#test-code">TEST CODE</a></li>
 </ul>
 </li>
@@ -173,9 +173,9 @@
            <div itemprop="articleBody">
              
   <section id="tradition-gaussian-filter-v1">
-<h1><span class="section-number">5.7.1. </span>tradition_gaussian_filter_v1<a class="headerlink" href="#tradition-gaussian-filter-v1" title="Permalink to this headline"></a></h1>
-<section id="id1">
-<h2>模型简介<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h2>
+<span id="id1"></span><h1><span class="section-number">5.7.1. </span>tradition_gaussian_filter_v1<a class="headerlink" href="#tradition-gaussian-filter-v1" title="Permalink to this headline"></a></h1>
+<section id="id2">
+<h2>模型简介<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h2>
 <ul class="simple">
 <li><p>作用：将传统高斯滤波转换成模型的形式，并使用 NPU 进行计算，提高传统高斯滤波的计算速度</p></li>
 <li><p>模型作者：王京</p></li>
@@ -183,7 +183,7 @@
 <li><p>实际效果：</p></li>
 </ul>
 <figure class="align-center" id="gaussian-filter">
-<a class="reference internal image-reference" href="../../_images/tradition_gaussian_filter_perform.png"><img alt="../../_images/tradition_gaussian_filter_perform.png" src="../../_images/tradition_gaussian_filter_perform.png" style="width: 80%;" /></a>
+<a class="reference internal image-reference" href="../images/tradition_gaussian_filter_v1_perform.png"><img alt="../images/tradition_gaussian_filter_v1_perform.png" src="../images/tradition_gaussian_filter_v1_perform.png" style="width: 80%;" /></a>
 </figure>
 <ul class="simple">
 <li><dl class="simple">
@@ -203,16 +203,16 @@
 </li>
 </ul>
 </section>
-<section id="id2">
-<h2>模型更新历史<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h2>
+<section id="id3">
+<h2>模型更新历史<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>onnx input shape 是模型推理时，实际输入的尺寸，并不是部署时一定要提供这种尺寸。
 一般情况下，如果外部提供的尺寸与 onnx input shape 不一致，AIMD 会在内部进行 resize
 然后在输入到模型中进行推理。</p>
 </div>
-<table class="docutils align-default" id="id4" style="width: 100%">
-<caption><span class="caption-number">Table 5.1 </span><span class="caption-text">模型更新历史</span><a class="headerlink" href="#id4" title="Permalink to this table"></a></caption>
+<table class="docutils align-default" id="id5" style="width: 100%">
+<caption><span class="caption-number">Table 5.1 </span><span class="caption-text">模型更新历史</span><a class="headerlink" href="#id5" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -250,8 +250,8 @@
 </tbody>
 </table>
 </section>
-<section id="id3">
-<h2>模型部署<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h2>
+<section id="id4">
+<h2>模型部署<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul>
@@ -266,8 +266,8 @@
 <li><p>模型部署代码：为了防止参数细节引起的 bug，请参考测试代码进行部署，测试代码都是通过单元测试的代码</p></li>
 </ul>
 </div>
-<table class="docutils align-default" id="id5" style="width: 100%">
-<caption><span class="caption-number">Table 5.2 </span><span class="caption-text">模型部署</span><a class="headerlink" href="#id5" title="Permalink to this table"></a></caption>
+<table class="docutils align-default" id="id6" style="width: 100%">
+<caption><span class="caption-number">Table 5.2 </span><span class="caption-text">模型部署</span><a class="headerlink" href="#id6" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
